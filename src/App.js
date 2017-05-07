@@ -6,8 +6,6 @@ const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
-
 function isSearched(term) {
   return function(item) {
     return !term || item.title.toLowerCase().includes(term.toLowerCase());
@@ -105,8 +103,13 @@ class App extends Component {
       return item.objectID !== id;
     };
 
-    let updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+    let updatedHits = {
+      hits: this.state.result.hits.filter(isNotId),
+    };
+
+    this.setState({
+      result: Object.assign({}, this.state.result, updatedHits),
+    });
   }
 
   onSearchChange(e) {
