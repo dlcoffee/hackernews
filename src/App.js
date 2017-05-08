@@ -6,16 +6,11 @@ const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 
-function isSearched(term) {
-  return function(item) {
-    return !term || item.title.toLowerCase().includes(term.toLowerCase());
-  };
-};
-
-const Search = ({ value, onChange, children }) => {
+const Search = ({ value, onChange, onSubmit, children }) => {
   return (
-    <form>
-      {children} <input type="text" value={value} onChange={onChange}/>
+    <form onSubmit={onSubmit}>
+      <input type="text" value={value} onChange={onChange}/>
+      <button type="submit">{children}</button>
     </form>
   );
 }
@@ -47,7 +42,7 @@ const Table = ({ list, pattern, onDismiss }) => {
 
   return (
     <div className="table">
-      { list.filter(isSearched(pattern)).map(item =>
+      { list.map(item =>
           <div key={item.objectID} className="table-row">
             <span style={largeColumn}>
               <a href={item.url}>{item.title}</a>
@@ -81,6 +76,7 @@ class App extends Component {
 
     this.onDismiss = this.onDismiss.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
   }
 
   componentDidMount(result) {
@@ -116,6 +112,12 @@ class App extends Component {
     this.setState({ searchTerm: e.target.value });
   }
 
+  onSearchSubmit(e) {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+    e.preventDefault();
+  }
+
   render() {
     const { searchTerm, result } = this.state;
 
@@ -124,7 +126,9 @@ class App extends Component {
         <div className="interactions">
           <Search
             value={searchTerm}
-            onChange={this.onSearchChange}>
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+          >
             Search
           </Search>
         </div>
@@ -132,7 +136,6 @@ class App extends Component {
         { result &&
           <Table
             list={result.hits}
-            pattern={searchTerm}
             onDismiss={this.onDismiss}
           />
         }
