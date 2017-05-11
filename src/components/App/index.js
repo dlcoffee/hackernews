@@ -17,6 +17,12 @@ import Search from '../Search';
 import Table from '../Table';
 import Loading from '../Loading';
 
+const withLoading = (Component) => ({ isLoading, ...rest }) => {
+  return isLoading ? <Loading /> : <Component { ...rest } />;
+};
+
+const ButtonWithLoading = withLoading(Button);
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -128,10 +134,11 @@ class App extends Component {
         />
 
         <div className="interactions">
-          { isLoading
-            ? <Loading />
-            : <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>More</Button>
-          }
+          <ButtonWithLoading
+            isLoading={isLoading}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+            More
+          </ButtonWithLoading>
         </div>
       </div>
     );
